@@ -39,26 +39,36 @@
             }
             $stmt->close();
         }
-        // Fetch customers
-        $result = $conn->query("SELECT * FROM customers");
+        // Fetch customers and their total invoice amounts
+        $result = $conn->query(
+            "SELECT c.*, 
+                    COALESCE(SUM(CASE WHEN i.type = 'revenue' THEN i.invoice_amount WHEN i.type = 'expense' THEN -i.invoice_amount ELSE 0 END), 0) AS total_invoices 
+             FROM customers c
+             LEFT JOIN invoices i ON c.id = i.customer_id
+             GROUP BY c.id"
+        );
         ?>
         <h2>Customer list</h2>
         <table>
             <tr>
                 <th>ID</th>
-                <th>company</th>
-                <th>contact_person</th>
-                <th>email</th>
-                <th>actions</th>
+                <th>Company</th>
+                <th>Contact Person</th>
+                <th>Email</th>
+                <th>Total Invoices</th>
+                <th>Actions</th>
             </tr>
             <?php
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
+                    $total_invoices = number_format((float)$row['total_invoices'], 2, ',', '.');
+                    $color = ($row['total_invoices'] >= 0) ? 'green' : 'firebrick';
                     echo "<tr>
                         <td>{$row['id']}</td>
                         <td>{$row['company']}</td>
                         <td>{$row['contact_person']}</td>
                         <td>{$row['email']}</td>
+                        <td style='color: {$color};'>{$total_invoices} €</td>
                         <td>
                             <button onclick='viewDetails(" . json_encode($row) . ")'>View Details</button>
                             <form action='' method='post' style='display:inline;'>
@@ -90,28 +100,29 @@
         <div class="forms">
             <div class="form-container">
                 <h2>Add customer</h2>
+                <p>(*) = required field</p>
                 <form action="" method="post">
-                    <label for="company">company:</label>
+                    <label for="company">Company (*):</label>
                     <input type="text" id="company" name="company" required>
-                    <label for="contact_person">contact_person:</label>
+                    <label for="contact_person">Contact Person:</label>
                     <input type="text" id="contact_person" name="contact_person">
-                    <label for="street">street:</label>
+                    <label for="street">Street:</label>
                     <input type="text" id="street" name="street">
-                    <label for="zip">zip:</label>
+                    <label for="zip">Zip:</label>
                     <input type="text" id="zip" name="zip">
-                    <label for="city">city:</label>
+                    <label for="city">City:</label>
                     <input type="text" id="city" name="city">
-                    <label for="country">country:</label>
+                    <label for="country">Country:</label>
                     <input type="text" id="country" name="country">
-                    <label for="mobile">mobile:</label>
+                    <label for="mobile">Mobile:</label>
                     <input type="text" id="mobile" name="mobile">
-                    <label for="phone">phone:</label>
+                    <label for="phone">Phone:</label>
                     <input type="text" id="phone" name="phone">
-                    <label for="email">email:</label>
+                    <label for="email">Email (*):</label>
                     <input type="email" id="email" name="email" required>
-                    <label for="url">url:</label>
+                    <label for="url">URL:</label>
                     <input type="text" id="url" name="url">
-                    <label for="note">note:</label>
+                    <label for="note">Note:</label>
                     <input type="text" id="note" name="note">
                     <button type="submit">Add customer</button>
                 </form>

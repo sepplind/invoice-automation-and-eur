@@ -100,7 +100,7 @@
         $query .= " WHERE YEAR(invoices.invoice_date) = $selected_year";
     }
 
-    $query .= " ORDER BY invoices.invoice_date ASC";
+    $query .= " ORDER BY invoices.invoice_date DESC";
     $result = $conn->query($query);
 
     // Calculate totals
@@ -156,8 +156,8 @@
         <?php
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                $type_label = ($row['type'] === 'revenue') ? 'Revenue (+)' : 'Expense (-)';
-                $amount_color = ($row['type'] === 'revenue') ? 'green' : 'red';
+                $type_label = ($row['type'] === 'revenue') ? '+' : '-';
+                $amount_color = ($row['type'] === 'revenue') ? 'green' : 'firebrick';
                 $invoice_amount = number_format((float)$row['invoice_amount'], 2, ',', '.');
                 echo "<tr>
                         <td>{$row['invoice_id']}</td>
@@ -175,12 +175,20 @@
         ?>
     </table>
     <!-- Display Totals -->
-    <div class="totals">
-        <h3>Totals</h3>
-        <p><strong>Total Revenue:</strong> <span style="color: green;"><?php echo $total_revenue; ?> €</span></p>
-        <p><strong>Total Expenses:</strong> <span style="color: red;"><?php echo $total_expense; ?> €</span></p>
-        <p><strong>Net Total: <?php echo $net_total; ?> €</strong></p>
-    </div>
+    <table class="totals">
+        <tr>
+            <th>Totals</th>
+        </tr>
+        <tr>
+            <td><strong>Total Revenue:</strong> <span style="color: green;"><?php echo $total_revenue; ?> €</span></td>
+        </tr>
+        <tr>
+            <td><strong>Total Expenses:</strong> <span style="color: firebrick;"><?php echo $total_expense; ?> €</span></td>
+        </tr>
+        <tr>
+            <td><strong>Net Total: <?php echo $net_total; ?> €</strong></td>
+        </tr>
+    </table>
     <br />
     <br />
     <br />
@@ -198,8 +206,9 @@
         <div class="form-container">
             <!-- Form to Add a New Invoice -->
             <h2>Add a New Invoice to EÜR</h2>
+            <p>(*) = required field</p>
             <form action="" method="post">
-                <label for="type">Invoice Type:</label>
+                <label for="type">Invoice Type (*):</label>
                 <select id="type" name="type" required>
                     <option value="revenue">Revenue (+)</option>
                     <option value="expense">Expense (-)</option>
@@ -247,13 +256,13 @@
                 <label for="custom_invoice_name">Or Enter Custom Invoice Name:</label>
                 <input type="text" id="custom_invoice_name" name="custom_invoice_name">
 
-                <label for="invoice_id">Invoice ID:</label>
+                <label for="invoice_id">Invoice ID (*, unique):</label>
                 <input type="text" id="invoice_id" name="invoice_id" required>
 
-                <label for="invoice_date">Invoice Date:</label>
+                <label for="invoice_date">Invoice Date (*):</label>
                 <input type="date" id="invoice_date" name="invoice_date" required>
 
-                <label for="invoice_amount">Invoice Amount:</label>
+                <label for="invoice_amount">Invoice Amount (*):</label>
                 <input type="number" id="invoice_amount" name="invoice_amount" step="0.01" required>
 
                 <button type="submit">Add Invoice</button>

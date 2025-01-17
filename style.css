@@ -62,7 +62,8 @@ th {
 tr:nth-child(even) {
     background-color: #f2f2f2;
 }
-.totals {
+.totals table.totals tr th,
+.totals table.totals tr td {
     text-align: right;
 }
 form {

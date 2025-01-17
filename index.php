@@ -14,6 +14,11 @@
             Invoice automation and EÜR
         </h1>
         <?php include 'includes/nav.php'; ?>
+        <ul>
+            <li>Create customer and assign them to invoices</li>
+            <li>Upload invoices and mail them automatically via cronjob</li>
+            <li>Create a simple EÜR calculation</li>
+        </ul>
     </div>
 </body>
 </html>
